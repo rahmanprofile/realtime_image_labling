@@ -103,10 +103,6 @@ class _MyHomePageState extends State<MyHomePage> {
   };
 
   InputImage? _inputImageFromCameraImage(CameraImage image) {
-    // get image rotation
-    // it is used in android to convert the InputImage from Dart to Java
-    // `rotation` is not used in iOS to convert the InputImage from Dart to Obj-C
-    // in both platforms `rotation` and `camera.lensDirection` can be used to compensate `x` and `y` coordinates on a canvas
     final camera = _cameras[1];
     final sensorOrientation = camera.sensorOrientation;
     InputImageRotation? rotation;
@@ -130,26 +126,19 @@ class _MyHomePageState extends State<MyHomePage> {
 
     // get image format
     final format = InputImageFormatValue.fromRawValue(image.format.raw);
-    // validate format depending on platform
-    // only supported formats:
-    // * nv21 for Android
-    // * bgra8888 for iOS
     if (format == null ||
         (Platform.isAndroid && format != InputImageFormat.nv21) ||
         (Platform.isIOS && format != InputImageFormat.bgra8888)) return null;
-
-    // since format is constraint to nv21 or bgra8888, both only have one plane
     if (image.planes.length != 1) return null;
     final plane = image.planes.first;
 
-    // compose InputImage using bytes
     return InputImage.fromBytes(
       bytes: plane.bytes,
       metadata: InputImageMetadata(
         size: Size(image.width.toDouble(), image.height.toDouble()),
-        rotation: rotation, // used only in Android
-        format: format, // used only in iOS
-        bytesPerRow: plane.bytesPerRow, // used only in iOS
+        rotation: rotation,
+        format: format,
+        bytesPerRow: plane.bytesPerRow,
       ),
     );
   }
@@ -163,7 +152,6 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Center(
           child: SingleChildScrollView(
-           // padding: const EdgeInsets.all(10.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
